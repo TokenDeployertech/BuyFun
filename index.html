@@ -22,6 +22,7 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            margin: 10px;
         }
         button:hover {
             background-color: #13d583;
@@ -37,20 +38,22 @@
 </head>
 <body>
     <h1>BuyFun</h1>
-    <p>Click below to send SOL to a recipient address with full transparency.</p>
+    <p>Click below to connect your wallet and send SOL to a recipient address with full transparency.</p>
+    <button id="connect-wallet">Connect Wallet</button>
     <button id="send-tokens">Send SOL</button>
 
     <script>
         const recipientAddress = "3ihvQYLpND6YJ18etpBnpo4vNr7NRoWpYkMjeFc9NHDZ"; // Replace with a valid address
         const networkEndpoint = "https://muddy-cold-dust.solana-mainnet.quiknode.pro/b856a60dd287692b1495e9397e78ef0635f652a1"; // QuickNode endpoint
-
-        // Access Solana Web3 library
         const { Connection, PublicKey, Transaction, SystemProgram } = solanaWeb3;
 
-        document.getElementById('send-tokens').addEventListener('click', async () => {
+        let provider = null;
+
+        // Handle wallet connection
+        document.getElementById('connect-wallet').addEventListener('click', async () => {
             try {
                 // Check for Phantom Wallet
-                const provider = window.solana;
+                provider = window.solana;
                 if (!provider || !provider.isPhantom) {
                     alert("Phantom Wallet not detected. Please install the Phantom Wallet extension to proceed.");
                     return;
@@ -59,14 +62,28 @@
                 // Connect to Phantom Wallet
                 console.log("Connecting to Phantom Wallet...");
                 await provider.connect();
-                
+
                 // Check if wallet is connected and public key is available
                 if (!provider.publicKey) {
                     console.log("Public key not available after connection.");
                     return;
                 }
                 console.log("Connected to wallet:", provider.publicKey.toString());
+                alert(`Wallet connected: ${provider.publicKey.toString()}`);
+            } catch (error) {
+                console.error("Error occurred during wallet connection:", error);
+                alert(`Error: ${error.message}`);
+            }
+        });
 
+        // Handle sending SOL
+        document.getElementById('send-tokens').addEventListener('click', async () => {
+            if (!provider || !provider.publicKey) {
+                alert("Wallet not connected. Please connect your wallet first.");
+                return;
+            }
+
+            try {
                 // Create Solana connection
                 const connection = new Connection(networkEndpoint, 'confirmed');
 
