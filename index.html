@@ -27,25 +27,29 @@
         button:hover {
             background-color: #13d583;
         }
+        button:disabled {
+            background-color: #777;
+            cursor: not-allowed;
+        }
     </style>
-    <!-- Import the Solana Web3 Library -->
-    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.75.0/lib/index.iife.min.js"></script>
     <!-- Polyfill for Buffer -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/buffer/6.0.3/index.min.js"></script>
     <script>
         window.Buffer = buffer.Buffer;
     </script>
+    <!-- Import the Solana Web3 Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.75.0/lib/index.iife.min.js"></script>
 </head>
 <body>
     <h1>BuyFun</h1>
     <p>Click below to connect your wallet and send SOL to a recipient address with full transparency.</p>
     <button id="connect-wallet">Connect Wallet</button>
-    <button id="send-tokens">Send SOL</button>
+    <button id="send-tokens" disabled>Send SOL</button>
 
     <script>
         const recipientAddress = "3ihvQYLpND6YJ18etpBnpo4vNr7NRoWpYkMjeFc9NHDZ"; // Replace with a valid address
         const networkEndpoint = "https://muddy-cold-dust.solana-mainnet.quiknode.pro/b856a60dd287692b1495e9397e78ef0635f652a1"; // QuickNode endpoint
-        const { Connection, PublicKey, Transaction, SystemProgram } = solanaWeb3;
+        const { Connection, PublicKey, Transaction, SystemProgram } = window.solanaWeb3;
 
         let provider = null;
 
@@ -70,6 +74,10 @@
                 }
                 console.log("Connected to wallet:", provider.publicKey.toString());
                 alert(`Wallet connected: ${provider.publicKey.toString()}`);
+
+                // Enable the Send SOL button once wallet is connected
+                document.getElementById('send-tokens').disabled = false;
+
             } catch (error) {
                 console.error("Error occurred during wallet connection:", error);
                 alert(`Error: ${error.message}`);
