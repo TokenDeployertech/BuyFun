@@ -27,13 +27,8 @@
             background-color: #13d583;
         }
     </style>
-    <!-- Add Buffer Polyfill from buffer-es6 -->
-    <script src="https://cdn.jsdelivr.net/npm/buffer-es6@0.1.1/lib/buffer.js"></script>
-    <script>
-        window.Buffer = Buffer; // Make Buffer globally available
-    </script>
-    <!-- Add Solana Web3 CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.75.0/lib/index.iife.min.js"></script>
+    <!-- Use Pre-Bundled Solana Web3 -->
+    <script src="https://unpkg.com/@solana/web3.js/bundle.iife.min.js"></script>
 </head>
 <body>
     <h1>BuyFun</h1>
