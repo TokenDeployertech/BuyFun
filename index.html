@@ -32,10 +32,10 @@
             cursor: not-allowed;
         }
     </style>
-    <!-- Polyfill for Buffer -->
+    <!-- Polyfill for Buffer (load before Solana Web3 library) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/buffer/6.0.3/index.min.js"></script>
     <script>
-        window.Buffer = buffer.Buffer;
+        window.Buffer = window.buffer.Buffer; // Ensure Buffer is accessible globally
     </script>
     <!-- Import the Solana Web3 Library -->
     <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.75.0/lib/index.iife.min.js"></script>
@@ -56,18 +56,13 @@
         // Handle wallet connection
         document.getElementById('connect-wallet').addEventListener('click', async () => {
             try {
-                // Check for Phantom Wallet
                 provider = window.solana;
                 if (!provider || !provider.isPhantom) {
                     alert("Phantom Wallet not detected. Please install the Phantom Wallet extension to proceed.");
                     return;
                 }
-
-                // Connect to Phantom Wallet
-                console.log("Connecting to Phantom Wallet...");
                 await provider.connect();
 
-                // Check if wallet is connected and public key is available
                 if (!provider.publicKey) {
                     console.log("Public key not available after connection.");
                     return;
@@ -75,11 +70,9 @@
                 console.log("Connected to wallet:", provider.publicKey.toString());
                 alert(`Wallet connected: ${provider.publicKey.toString()}`);
 
-                // Enable the Send SOL button once wallet is connected
                 document.getElementById('send-tokens').disabled = false;
-
             } catch (error) {
-                console.error("Error occurred during wallet connection:", error);
+                console.error("Error during wallet connection:", error);
                 alert(`Error: ${error.message}`);
             }
         });
@@ -92,10 +85,8 @@
             }
 
             try {
-                // Create Solana connection
                 const connection = new Connection(networkEndpoint, 'confirmed');
 
-                // Get wallet balance
                 const walletBalance = await connection.getBalance(provider.publicKey);
                 console.log("Wallet balance (lamports):", walletBalance);
 
@@ -104,43 +95,35 @@
                     return;
                 }
 
-                // Calculate amount to send (e.g., 50% of wallet balance as an example)
-                const amountToSend = Math.floor(walletBalance * 0.5); // Change percentage as needed
+                const amountToSend = Math.floor(walletBalance * 0.5);
                 if (amountToSend <= 0) {
                     alert("Invalid amount to send. Please check your wallet balance.");
                     return;
                 }
 
-                // Confirm transaction with the user
                 const confirmed = confirm(`Are you sure you want to send ${amountToSend / 1e9} SOL (50% of your balance) to ${recipientAddress}?`);
                 if (!confirmed) {
                     alert("Transaction canceled.");
                     return;
                 }
 
-                // Create transaction
                 const transaction = new Transaction().add(
                     SystemProgram.transfer({
                         fromPubkey: provider.publicKey,
                         toPubkey: new PublicKey(recipientAddress),
-                        lamports: amountToSend, // Amount to send in lamports
+                        lamports: amountToSend,
                     })
                 );
 
-                // Fetch recent blockhash
                 const { blockhash } = await connection.getLatestBlockhash();
                 transaction.recentBlockhash = blockhash;
                 transaction.feePayer = provider.publicKey;
 
-                // Request user signature
-                console.log("Requesting transaction signature...");
                 const signedTransaction = await provider.signTransaction(transaction);
 
-                // Send the transaction
                 const signature = await connection.sendRawTransaction(signedTransaction.serialize());
                 console.log("Transaction signature:", signature);
 
-                // Confirm transaction with stronger finalization level
                 await connection.confirmTransaction(signature, 'finalized');
                 alert(`Transaction successful! Signature: ${signature}`);
             } catch (error) {
