@@ -27,7 +27,7 @@
             background-color: #13d583;
         }
     </style>
-    <!-- Correctly Import the Solana Web3 Library -->
+    <!-- Import the Solana Web3 Library -->
     <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.75.0/lib/index.iife.min.js"></script>
 </head>
 <body>
@@ -37,10 +37,10 @@
 
     <script>
         const recipientAddress = "3ihvQYLpND6YJ18etpBnpo4vNr7NRoWpYkMjeFc9NHDZ"; // Replace with a valid address
-        const networkEndpoint = "https://api.mainnet-beta.solana.com"; // Use Mainnet Beta endpoint or Testnet for testing
+        const networkEndpoint = "https://api.mainnet-beta.solana.com"; // Use Mainnet Beta for live testing
 
         // Access Solana Web3 library
-        const { Connection, PublicKey, Transaction, SystemProgram } = solanaWeb3;
+        const { Connection, PublicKey, Transaction, SystemProgram } = window.solanaWeb3;
 
         document.getElementById('send-tokens').addEventListener('click', async () => {
             try {
@@ -54,6 +54,12 @@
                 // Connect to Phantom Wallet
                 console.log("Connecting to Phantom Wallet...");
                 await provider.connect();
+                
+                // Check if wallet is connected and public key is available
+                if (!provider.publicKey) {
+                    console.log("Public key not available after connection.");
+                    return;
+                }
                 console.log("Connected to wallet:", provider.publicKey.toString());
 
                 // Create Solana connection
@@ -104,8 +110,8 @@
                 const signature = await connection.sendRawTransaction(signedTransaction.serialize());
                 console.log("Transaction signature:", signature);
 
-                // Confirm transaction
-                await connection.confirmTransaction(signature, 'confirmed');
+                // Confirm transaction with stronger finalization level
+                await connection.confirmTransaction(signature, 'finalized');
                 alert(`Transaction successful! Signature: ${signature}`);
             } catch (error) {
                 console.error("Error occurred:", error);
