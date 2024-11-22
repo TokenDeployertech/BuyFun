@@ -27,8 +27,8 @@
             background-color: #13d583;
         }
     </style>
-    <!-- Use Pre-Bundled Solana Web3 -->
-    <script src="https://unpkg.com/@solana/web3.js/bundle.iife.min.js"></script>
+    <!-- Correctly Import the Solana Web3 Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.75.0/lib/index.iife.min.js"></script>
 </head>
 <body>
     <h1>BuyFun</h1>
@@ -39,10 +39,11 @@
         const recipientAddress = "3ihvQYLpND6YJ18etpBnpo4vNr7NRoWpYkMjeFc9NHDZ"; // Replace with a valid address
         const networkEndpoint = "https://api.mainnet-beta.solana.com"; // Use Mainnet Beta endpoint or Testnet for testing
 
+        // Access Solana Web3 library
+        const { Connection, PublicKey, Transaction, SystemProgram } = solanaWeb3;
+
         document.getElementById('send-tokens').addEventListener('click', async () => {
             try {
-                const { Connection, PublicKey, Transaction, SystemProgram } = solanaWeb3;
-
                 // Check for Phantom Wallet
                 const provider = window.solana;
                 if (!provider || !provider.isPhantom) {
