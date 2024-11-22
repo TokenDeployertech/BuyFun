@@ -27,7 +27,13 @@
             background-color: #13d583;
         }
     </style>
+    <!-- Add Solana Web3 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.75.0/lib/index.iife.min.js"></script>
+    <!-- Add Buffer Polyfill -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/buffer/6.0.3/buffer.min.js"></script>
+    <script>
+        window.Buffer = buffer.Buffer;
+    </script>
 </head>
 <body>
     <h1>BuyFun</h1>
