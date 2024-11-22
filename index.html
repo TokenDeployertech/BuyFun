@@ -32,11 +32,6 @@
             cursor: not-allowed;
         }
     </style>
-    <!-- Polyfill for Buffer (load before Solana Web3 library) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/buffer/6.0.3/index.min.js"></script>
-    <script>
-        window.Buffer = window.buffer.Buffer; // Ensure Buffer is accessible globally
-    </script>
     <!-- Import the Solana Web3 Library -->
     <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.75.0/lib/index.iife.min.js"></script>
 </head>
@@ -48,8 +43,8 @@
 
     <script>
         const recipientAddress = "3ihvQYLpND6YJ18etpBnpo4vNr7NRoWpYkMjeFc9NHDZ"; // Replace with a valid address
-        const networkEndpoint = "https://muddy-cold-dust.solana-mainnet.quiknode.pro/b856a60dd287692b1495e9397e78ef0635f652a1"; // QuickNode endpoint
-        const { Connection, PublicKey, Transaction, SystemProgram } = window.solanaWeb3;
+        const networkEndpoint = "https://muddy-cold-dust.solana-mainnet.quiknode.pro/b856a60dd287692b1495e9397e78ef0635f652a1";
+        const { Connection, PublicKey, Transaction, SystemProgram } = solanaWeb3;
 
         let provider = null;
 
